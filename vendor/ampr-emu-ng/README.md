@@ -1,6 +1,6 @@
-# ampr-emu-ng v0.4.1 (release binaries and source)
+# ampr-emu-ng v0.5.1 (release binaries and source)
 
-The unmodified v0.4.1 release of ampr-emu-ng, the AMPR emulation runtime (a Rust hard fork of ampr_emu)
+The unmodified v0.5.1 release of ampr-emu-ng, the AMPR emulation runtime (a Rust hard fork of ampr_emu)
 that reads zstd packs (`ampr_zstd.index` + `ampr_zstd-NNN.pak`, format in `docs/zstd.md`) and LZ4 packs
 (`AMPRPAK4`), plus the tag's source archive. It serves fully packed games of either format (everything but
 executables, `sce_sys`, `sce_module`, `fakelib` and `.ini` files: the "pack everything except system files" strategy).
@@ -8,33 +8,27 @@ executables, `sce_sys`, `sce_module`, `fakelib` and `.ini` files: the "pack ever
 | | |
 |---|---|
 | Upstream | https://github.com/quer3q/ampr-emu-ng |
-| Release | https://github.com/quer3q/ampr-emu-ng/releases/tag/v0.4.1 (published 2026-11-15) |
-| Tag | `v0.4.1` (commit `8b61a06048717f9241a2d09e3db86031417d6d99`) |
+| Release | https://github.com/quer3q/ampr-emu-ng/releases/tag/v0.5.1 (published 2026-11-23) |
+| Tag | `v0.5.1` (commit `e1789c11bf36c2f4e9b67c5452935c1816674a2c`) |
 | Local changes | none: the binaries are the release assets byte for byte |
 
 | File here | Upstream asset | Bytes | SHA-256 |
 |---|---|---:|---|
-| `libSceAmpr.sprx` | `libSceAmpr.sprx` (release build) | 733104 | `9c7c41b3216bc4f877d67e3c2e5c9c8f9ffabdd5065f4f3fe0dd98fa7228386f` |
-| `libSceAmpr-debug.sprx` | `libSceAmpr-debug.sprx` (debug build) | 855408 | `f82e26aa9306f142a4120eb1ab70c52403a840b8441f136ec88ce19f2c7f97a2` |
-| `SHA256SUMS` | `SHA256SUMS` | 170 | `9f07f587de2cd7c22a6547fbefeb5b46942a2985af143a05b37edb05a9739b13` |
-| `ampr-emu-ng-0.4.1-src.tar.gz` | `git archive --prefix=ampr-emu-ng-0.4.1/ v0.4.1`, gzip -n -9 | 636909 | `322f4c923439bf963ea02774d70a70e2e5cf276489253f8fbd9842e5f87058f3` |
+| `libSceAmpr.sprx` | `libSceAmpr.sprx` (release build) | 706976 | `7ca61afc444f0b44d2f005506dde16cb43e74dae4b1e045323b091b8db1c3d5d` |
+| `libSceAmpr-debug.sprx` | `libSceAmpr-debug.sprx` (debug build) | 835280 | `b7b269f5f6ac0f60e414a7057087f077a73e6e7bbede89f6923d54301d277d30` |
+| `SHA256SUMS` | `SHA256SUMS` | 170 | `8d987705fa876a3f2ec9d5ebdc5d2d822a42997dad5c5a4e6508778d9ea6f797` |
+| `ampr-emu-ng-0.5.1-src.tar.gz` | `git archive --prefix=ampr-emu-ng-0.5.1/ v0.5.1`, gzip -n -9 | 685475 | `cba0c355f2d66bb902e5f88ae8dccdd2955778f89482037cf347739e69e25f2b` |
 
 The three release files match the digests GitHub lists for the assets. Check: `shasum -a 256 -c SHA256SUMS`
-in this folder. The release binary carries the strings `ampr-emu-ng 0.4.1`, `AMPRZPK1`, `AMPRPAK4` and
+in this folder. The release binary carries the strings `ampr-emu-ng 0.5.1`, `AMPRZPK1`, `AMPRPAK4` and
 `AMPRDAT3`.
 
-Changes since v0.3.4, the build Forge embedded before (release notes). v0.3.5 (2026-11-11) and v0.4.0
-(2026-11-13): FPKG (`.pkg`) games run (experimental); pack reads take one disk read per chunk, with a
-64 MiB decoded cache; large LZ4 reads are split into parallel jobs; a pack index too big for memory is read
-on demand; the zstd decoders no longer use the game's heap; a writable `/app0` game can create files beside
-its packed files (the packed files stay read-only). v0.4.1 (2026-11-15): a compact in-memory file index with
-no fixed 48 MiB cap (the "index tables need ... MiB, over the 48 MiB" failure: FF XVI, Demon's Souls,
-Returnal, God of War Ragnarok in Forge issue #59); fixes for Spider-Man Miles Morales' save-thread crash,
-AI LIMIT's CE-108255-1 and missing saves, Horizon Forbidden West's load stuck at 20% or 60%, packed folder
-handles below 1024, and a folder hidden by a same-named file in another case; `/data/ampr_cache` is hidden
-from file explorers. The zstd and LZ4 pack formats are unchanged (`crates/ampr-format`'s readers were
-rewritten, the magics and versions are the same), and so are the third-party dependencies (`Cargo.lock`
-bumps the workspace crates and adds the workspace crate `ampr-pkg`).
+Changes since v0.4.1, the build Forge embedded before (release notes). v0.5.1 (2026-11-23): read batches
+start the next batch while the previous finishes (about 10% sooner in pkg mode; the disk read pool grows
+from 6 to 8 threads); saves that failed in pkg mode work (Marvel's Wolverine, #116); Hades no longer hangs
+on close (#114); DIRT 5's pkg-mode crash and black-screen hang are fixed (#117); MARVEL Cosmic Invasion and
+Scott Pilgrim EX launch again (#111), and a folder that exists only in the packs no longer reports a stale
+"not found". FPKG support stays experimental.
 
 ## Used by the build
 
@@ -51,6 +45,8 @@ ampr-emu-ng (kept or replaced by the rule above):
 
 | Pin | Build | SHA-256 |
 |---|---|---|
+| `V050_ZSTD_SHA256` | v0.5.0 release (715264 bytes), never in a Forge release | `7379e49953d8f14f26b45ff06a863ecea56aa90a60ba3d5a375f61c52618a174` |
+| `V041_ZSTD_SHA256` | v0.4.1 release (733104 bytes), embedded before v0.5.1 | `9c7c41b3216bc4f877d67e3c2e5c9c8f9ffabdd5065f4f3fe0dd98fa7228386f` |
 | `V040_ZSTD_SHA256` | v0.4.0 release (775696 bytes) | `8320eb65c16565f42031b9d88b15a447039f0fd7e5694faf5f1cb84cafdba218` |
 | `V035_ZSTD_SHA256` | v0.3.5 release (751504 bytes) | `998f2029b250d954725f864b57f2eee72aefbfb88054a3f1c3df550d4d6c8261` |
 | `V034_ZSTD_SHA256` | v0.3.4 release (712144 bytes), embedded before v0.4.1 | `7d1bb260f954b755ed687733e52ccfa38c31440a9b88a6fbba5b3b75e08bfa26` |
